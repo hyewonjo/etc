@@ -3,8 +3,8 @@ package com.example;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,7 +21,7 @@ public class ModifyOK extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private Connection connection;
-	private Statement stmt;
+	private PreparedStatement stmt;
 	
 	private String name, id, pw, phone1, phone2, phone3, gender;
 	
@@ -65,14 +65,21 @@ public class ModifyOK extends HttpServlet {
 		if(pwConfirm()) {
 			System.out.println("OK");
 			
-			String query = "update member set name = '" + name + "', phone1 = '" + phone1 + "', phone2 = '" + phone2 + "', phone3 = '" + phone3
-					+ "', gender = '" + gender +"' where id = '" + id + "'";
+			String query = "update member set name = ?, phone1 = ?, phone2 = ?, phone3 = ?, gender = ? where id = ?";
 			
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8", "root", "root");
-				stmt = connection.createStatement();
-				int i = stmt.executeUpdate(query);
+				stmt = connection.prepareStatement(query);
+				
+				stmt.setString(1, name);
+				stmt.setString(2, phone1);
+				stmt.setString(3, phone2);
+				stmt.setString(4, phone3);
+				stmt.setString(5, gender);
+				stmt.setString(6, id);
+				
+				int i = stmt.executeUpdate();
 				if(i == 1) {
 					System.out.println("update success");
 					session.setAttribute("name", name);

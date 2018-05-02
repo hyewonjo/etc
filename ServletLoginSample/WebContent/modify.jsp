@@ -1,12 +1,12 @@
 <%@ page import="java.sql.DriverManager" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.Statement" %>
+<%@ page import="java.sql.PreparedStatement" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     <%!
     	Connection connection;
-    	Statement stmt;
+    	PreparedStatement stmt;
     	ResultSet resultSet;
     	
     	String name, id, pw, phone1, phone2, phone3, gender;
@@ -20,12 +20,15 @@
 <body>
 	<%
 		id = (String)session.getAttribute("id");
-		String query = "select * from member where id = '" + id + "'";
+		String query = "select * from member where id = ?";
 		
 		Class.forName("com.mysql.jdbc.Driver");
 		connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8", "root", "root");
-		stmt = connection.createStatement();
-		resultSet = stmt.executeQuery(query);
+		stmt = connection.prepareStatement(query);
+		
+		stmt.setString(1, id);
+		
+		resultSet = stmt.executeQuery();
 		
 		while(resultSet.next()){
 			name = resultSet.getString("name");

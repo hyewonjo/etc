@@ -3,9 +3,9 @@ package com.example;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,9 +22,8 @@ public class LogInOK extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	private Connection connection;
-	private Statement stmt;
+	private PreparedStatement stmt;
 	private ResultSet resultSet;
-	private int i = 1;
 	
     /**
      * @see HttpServlet#HttpServlet()
@@ -60,13 +59,17 @@ public class LogInOK extends HttpServlet {
 		id = request.getParameter("id");
 		pw = request.getParameter("pw");
 		
-		String query = "select * from member where id = '" + id + "' and pw = '" + pw + "'";
+		String query = "select * from member where id = ? and pw = ?";
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8", "root", "root");
-			stmt = connection.createStatement();
-			resultSet = stmt.executeQuery(query);
+			stmt = connection.prepareStatement(query);
+			
+			stmt.setString(1, id);
+			stmt.setString(2, pw);
+			
+			resultSet = stmt.executeQuery();
 			
 			if(resultSet.next()) {
 				name = resultSet.getString("name");
