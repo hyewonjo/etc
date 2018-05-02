@@ -7,12 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
 /**
  * Servlet implementation class LogInOK
@@ -21,6 +24,7 @@ import javax.servlet.http.HttpSession;
 public class LogInOK extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
+	private DataSource dataSource;
 	private Connection connection;
 	private PreparedStatement stmt;
 	private ResultSet resultSet;
@@ -30,7 +34,6 @@ public class LogInOK extends HttpServlet {
      */
     public LogInOK() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
@@ -62,8 +65,9 @@ public class LogInOK extends HttpServlet {
 		String query = "select * from member where id = ? and pw = ?";
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8", "root", "root");
+			Context context = new InitialContext();
+			dataSource = (DataSource)context.lookup("java:comp/env/jdbc/testDB");
+			connection = dataSource.getConnection();
 			stmt = connection.prepareStatement(query);
 			
 			stmt.setString(1, id);
